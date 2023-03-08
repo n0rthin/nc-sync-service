@@ -4,4 +4,4 @@ nltk
 transformers
 flask
 gunicorn
-dotenv
+python-dotenv
