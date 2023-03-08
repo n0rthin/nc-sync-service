@@ -6,3 +6,4 @@ flask
 gunicorn
 python-dotenv
 pinecone-client
+psycopg2-binary

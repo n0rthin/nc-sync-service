@@ -1,6 +1,7 @@
 from transformers import GPT2TokenizerFast
-import numpy as np
 from nltk.tokenize import sent_tokenize
+from . import db
+from .main_service import update_import_progress
 from .embeddings import get_embeddings, save_embeddings
 
 tokenizer = GPT2TokenizerFast.from_pretrained("gpt2")
@@ -10,7 +11,7 @@ def sync_page(import_process_id, page_content, user_id, page_id, chat_id):
   embeddings = get_embeddings([context["text"] for context in contexts])
   context_ids = []
   for i, context in enumerate(contexts):
-    context_id = save_context(context, chat_id, page_id, i)
+    context_id = save_context(context, user_id, page_id, i)
     context_ids.append(context_id)
 
   save_embeddings(list(zip(embeddings, context_ids)), user_id, page_id, chat_id)
@@ -36,11 +37,15 @@ def get_contexts(page_content):
 
   return contexts
 
-def save_context(context, chat_id, page_id, context_index):
-  return "context_id"
-
-def update_import_progress(import_process_id, page_id):
-  pass
+def save_context(context, user_id, page_id, context_index):
+  db.cursor.execute(f"""
+  INSERT INTO contexts 
+  (user_id, page_id, content, index) 
+  VALUES (%s, %s, %s, %s)
+  RETURNING id;
+  """, (user_id, page_id, context["text"], context_index))
+  db.conn.commit()
+  return db.cursor.fetchone()[0]
 
 def count_tokens(text):
   """count the number of tokens in a string"""

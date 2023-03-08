@@ -15,11 +15,11 @@ def get_embeddings(texts, model=EMBEDDING_MODEL):
 
 def save_embeddings(embeddings, user_id, chat_id, page_id):
   vectors = [{
-    "id": context_id,
+    "id": str(context_id),
     "values": embedding,
-    "metadata": {'chat_id': chat_id, 'page_id': page_id}
+    "metadata": {'chat_id': chat_id, 'page_id': page_id, "context_id": context_id}
   } for embedding, context_id in embeddings]
   index.upsert(
     vectors=vectors,
-    namespace=user_id
+    namespace=str(user_id)
   )
