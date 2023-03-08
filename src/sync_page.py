@@ -1,7 +1,7 @@
 from transformers import GPT2TokenizerFast
 import numpy as np
 from nltk.tokenize import sent_tokenize
-from src.embeddings import get_embeddings 
+from .embeddings import get_embeddings 
 
 tokenizer = GPT2TokenizerFast.from_pretrained("gpt2")
 
