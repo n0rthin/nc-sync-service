@@ -1,0 +1,6 @@
+openai
+rq
+nltk
+transformers
+flusk
+gunicorn
