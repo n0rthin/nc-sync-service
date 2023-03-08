@@ -2,5 +2,5 @@ openai
 rq
 nltk
 transformers
-flusk
+flask
 gunicorn
