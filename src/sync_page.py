@@ -1,17 +1,19 @@
 from transformers import GPT2TokenizerFast
 import numpy as np
 from nltk.tokenize import sent_tokenize
-from .embeddings import get_embeddings 
+from .embeddings import get_embeddings, save_embeddings
 
 tokenizer = GPT2TokenizerFast.from_pretrained("gpt2")
 
-def sync_page(import_process_id, page_content, page_id, chat_id):
+def sync_page(import_process_id, page_content, user_id, page_id, chat_id):
   contexts = get_contexts(page_content)
   embeddings = get_embeddings([context["text"] for context in contexts])
+  context_ids = []
   for i, context in enumerate(contexts):
-    save_context(context, page_id, chat_id)
-    save_embedding(embeddings[i], page_id, chat_id)
+    context_id = save_context(context, chat_id, page_id, i)
+    context_ids.append(context_id)
 
+  save_embeddings(list(zip(embeddings, context_ids)), user_id, page_id, chat_id)
   update_import_progress(import_process_id, page_id)
 
 def get_contexts(page_content):
@@ -34,11 +36,8 @@ def get_contexts(page_content):
 
   return contexts
 
-def save_context(context, page_id, chat_id):
-  pass
-
-def save_embedding(embedding, page_id, chat_id):
-  pass
+def save_context(context, chat_id, page_id, context_index):
+  return "context_id"
 
 def update_import_progress(import_process_id, page_id):
   pass

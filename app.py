@@ -13,7 +13,14 @@ q = Queue(connection=conn)
 @token_required
 def index():
   request_data = request.get_json()
-  sync_page_args = (request_data["import_process_id"], request_data["page_content"], request_data["page_id"], request_data["chat_id"])
+  sync_page_args = (
+    request_data["import_process_id"],
+    request_data["page_content"],
+    request_data["user_id"],
+    request_data["page_id"],
+    request_data["chat_id"]
+  )
+  
   q.enqueue_call(
     sync_page, sync_page_args
   )
