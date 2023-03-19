@@ -14,7 +14,7 @@ def sync_page(import_process_id, page_content, user_id, page_id, chat_id):
     context_id = save_context(context, user_id, page_id, i)
     context_ids.append(context_id)
 
-  save_embeddings(list(zip(embeddings, context_ids)), user_id, page_id, chat_id)
+  save_embeddings(list(zip(embeddings, context_ids)), user_id, chat_id, page_id)
   update_import_progress(import_process_id, page_id)
 
 def get_contexts(page_content):
@@ -40,10 +40,10 @@ def get_contexts(page_content):
 def save_context(context, user_id, page_id, context_index):
   db.cursor.execute(f"""
   INSERT INTO contexts 
-  (user_id, page_id, content, index) 
-  VALUES (%s, %s, %s, %s)
+  (user_id, page_id, content, index, tokens) 
+  VALUES (%s, %s, %s, %s, %s)
   RETURNING id;
-  """, (user_id, page_id, context["text"], context_index))
+  """, (user_id, page_id, context["text"], context_index, context["tokens"]))
   db.conn.commit()
   return db.cursor.fetchone()[0]
 
