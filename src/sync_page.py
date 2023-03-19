@@ -3,6 +3,8 @@ from nltk.tokenize import sent_tokenize
 from . import db
 from .main_service import update_import_progress
 from .embeddings import get_embeddings, save_embeddings
+import nltk
+nltk.download('punkt')
 
 tokenizer = GPT2TokenizerFast.from_pretrained("gpt2")
 
