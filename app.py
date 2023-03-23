@@ -5,6 +5,8 @@ from worker import conn
 from src.sync_page import sync_page
 from src.auth import token_required
 from flask import Flask, request
+import nltk
+nltk.download('punkt')
 
 app = Flask(__name__)
 q = Queue(connection=conn)
