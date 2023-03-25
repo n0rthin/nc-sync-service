@@ -1,12 +1,14 @@
-from transformers import GPT2TokenizerFast
-from nltk.tokenize import sent_tokenize
-from . import db
-from .main_service import update_import_progress
-from .embeddings import get_embeddings, save_embeddings
 
-tokenizer = GPT2TokenizerFast.from_pretrained("gpt2")
+from .main_service import update_import_progress
+from .embeddings import get_embeddings, save_embeddings, clear_embeddings
+from .context import get_contexts, clear_contexts, save_context
+
 
 def sync_page(import_process_id, page_content, user_id, page_id, chat_id):
+  print(f"process: {import_process_id}, clearing embeddings for page: {page_id}")
+  clear_embeddings(page_id)
+  print(f"process: {import_process_id}, clearing contexts for page: {page_id}")
+  clear_contexts(page_id)
   print(f"process: {import_process_id}, getting contexts for page: {page_id}")
   contexts = get_contexts(page_content)
   print(f"process: {import_process_id}, getting embeddings for page: {page_id}")
@@ -21,60 +23,5 @@ def sync_page(import_process_id, page_content, user_id, page_id, chat_id):
   save_embeddings(list(zip(embeddings, context_ids)), user_id, chat_id, page_id)
   print(f"process: {import_process_id}, updating sync progress for page: {page_id}")
   update_import_progress(import_process_id, page_id)
-
-def get_contexts(page_content):
-  contexts = []
-  if count_tokens(page_content) > 1500:
-    texts = split_long_text(page_content)
-    for text in texts:
-      if count_tokens(text) <= 40:
-        continue
-      
-      contexts.append({
-        "text": text,
-        "tokens": count_tokens(text),
-      })
-  else:
-    contexts.append({
-      "text": page_content,
-      "tokens": count_tokens(page_content),
-    })
-
-  return contexts
-
-def save_context(context, user_id, page_id, context_index):
-  db.cursor.execute(f"""
-  INSERT INTO contexts 
-  (user_id, page_id, content, index, tokens) 
-  VALUES (%s, %s, %s, %s, %s)
-  RETURNING id;
-  """, (user_id, page_id, context["text"], context_index, context["tokens"]))
-  db.conn.commit()
-  return db.cursor.fetchone()[0]
-
-def count_tokens(text):
-  """count the number of tokens in a string"""
-  return len(tokenizer.encode(text))
-
-def split_long_text(text, max_tokens=1500):
-  long_text_tokens = count_tokens(text)
-  if long_text_tokens > max_tokens:
-    sentences = sent_tokenize(text.replace("\n", " "))
-    sections = []
-    section = ""
-
-    for i, sentence in enumerate(sentences):
-      if section != "" and count_tokens(section + ". " + sentence + ".") > max_tokens:
-        sections.append(section + ".")
-        section = ""
-      else:
-        section += ". " + sentence if section != "" else sentence
-
-    if section != "":
-      sections.append(section + ".")
-
-    return sections
-
-  return [text]
 
 

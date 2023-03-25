@@ -30,3 +30,6 @@ def save_embeddings(embeddings, user_id, chat_id, page_id):
     vectors=vectors,
     namespace=user_id
   )
+
+def clear_embeddings(page_id):
+  index.delete(filter={"page_id": page_id})
