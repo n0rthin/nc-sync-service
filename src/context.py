@@ -9,7 +9,7 @@ def get_contexts(page_content):
   if count_tokens(page_content) > 1500:
     texts = split_long_text(page_content)
     for text in texts:
-      if count_tokens(text) <= 40:
+      if count_tokens(text) <= 10:
         continue
       
       contexts.append({
